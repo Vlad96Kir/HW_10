@@ -66,51 +66,54 @@ def main():
     while True:
         command = input("> ")
 
-        if command.startswith("add"):
-            _, name, phone = command.split(" ")
+        command_parts = command.split(" ")
+        command_parts[0] = command_parts[0].lower()  # Convert command to lowercase
+
+        if command_parts[0] == "add":
+            name = command_parts[1]
             record = Record(name)
-            record.add_phone(phone)
+            phones = command_parts[2:]
+            for phone in phones:
+                record.add_phone(phone)
             address_book.add_record(record)
-            print(f"Contact {name} with phone {phone} added successfully")
-        elif command.startswith("delete"):
-            _, name = command.split(" ")
-            if name in address_book.data:
-                address_book.delete_record(name)
-                print(f"Contact {name} deleted successfully")
-            else:
-                print(f"No contact found with the name {name}")
-        elif command.startswith("edit"):
-            _, name, phone = command.split(" ")
+            print(f"Contact {name} added successfully")
+
+        elif command_parts[0] == "delete":
+            name = command_parts[1]
+            address_book.delete_record(name)
+            print(f"Contact {name} deleted successfully")
+
+        elif command_parts[0] == "edit":
+            name = command_parts[1]
+            phones = command_parts[2:]
             if name in address_book.data:
                 record = address_book.data[name]
-                record.add_phone(phone)
-                address_book.edit_record(name, record)
-                print(f"Phone number for contact {name} changed to {phone}")
+                record.phones = []
+                for phone in phones:
+                    record.add_phone(phone)
+                print(f"Contact {name} edited successfully")
             else:
-                print(f"No contact found with the name {name}")
-        elif command.startswith("search"):
-            _, field, value = command.split(" ")
-            if field == "name":
-                results = address_book.search_records(name=value)
-                if results:
-                    print("Search results:")
-                    for record in results:
-                        print(f"{record.name.value}: {', '.join(phone.value for phone in record.phones)}")
-                else:
-                    print("No contacts found")
-            elif field == "phone":
-                results = address_book.search_records(phone=value)
-                if results:
-                    print("Search results:")
-                    for record in results:
-                        print(f"{record.name.value}: {', '.join(phone.value for phone in record.phones)}")
-                else:
-                    print("No contacts found")
-        elif command == "exit":
+                print(f"No contact found with name {name}")
+
+        elif command_parts[0] == "search":
+            if len(command_parts) == 2:
+                name = command_parts[1]
+                results = address_book.search_records(name=name)
+                for record in results:
+                    print(f"Name: {record.name.value}")
+                    for phone in record.phones:
+                        print(f"Phone: {phone.value}")
+                    print()
+            else:
+                print("Invalid command. Please provide a name to search.")
+
+        elif command_parts[0] in ["exit", "quit"]:
+            print("Good bye!")
             break
+
         else:
             print("Invalid command. Please try again.")
 
 
-if __name__ == "__main__":
+if __name__== "__main__":
     main()
